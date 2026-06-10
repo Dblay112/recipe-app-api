@@ -1,4 +1,4 @@
-FROM python:3.13-alpine3.21
+FROM python:3.13-slim
 LABEL maintainer="dblay112"
 
 ENV PYTHONUNBUFFERED=1
@@ -11,12 +11,15 @@ EXPOSE 8000
 
 ARG DEV=false
 
-RUN python -m venv /py && \
+RUN apt-get update && apt-get install -y postgresql-client && \
+    python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
     /py/bin/pip install -r /tmp/requirements.txt && \
     if [ "$DEV" = "true" ]; then \
     /py/bin/pip install -r /tmp/requirements.dev.txt; \
     fi && \
+    apt-get autoremove -y && \
+    apt-get clean && \
     rm -rf /tmp && \
     adduser \
     --disabled-password \
